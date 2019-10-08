@@ -34,32 +34,27 @@ Plack.Debugger.prototype.ready = function ( callback ) {
     var self           = this;
     var ready_callback = function ( $jQuery ) { self._ready( $jQuery, callback ) };
 
-    if ( typeof jQuery == 'undefined' ) {
+    var script  = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src  = Plack.Debugger.$CONFIG.static_js_url + '/jquery.js';
 
-        var script  = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src  = Plack.Debugger.$CONFIG.static_js_url + '/jquery.js';
-
-        if (script.readyState) { // IE
-            script.onreadystatechange = function () {
-                if (script.readyState == 'loaded' || script.readyState == 'complete') {
-                    script.onreadystatechange = null;
-                    jQuery.noConflict();
-                    jQuery(document).ready(ready_callback);
-                }
-            };
-        } 
-        else { 
-            script.onload = function () {
+    if (script.readyState) { // IE
+        script.onreadystatechange = function () {
+            if (script.readyState == 'loaded' || script.readyState == 'complete') {
+                script.onreadystatechange = null;
                 jQuery.noConflict();
                 jQuery(document).ready(ready_callback);
-            };
-        }
-
-        document.getElementsByTagName('body')[0].appendChild( script );
-    } else {
-        jQuery(document).ready(ready_callback);
+            }
+        };
+    } 
+    else { 
+        script.onload = function () {
+            jQuery.noConflict();
+            jQuery(document).ready(ready_callback);
+        };
     }
+
+    document.getElementsByTagName('body')[0].appendChild( script );
 
     return self;
 }
